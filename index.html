@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro Rápido - Atleta</title>
+<style>
+  body{font-family:Arial; padding:12px; max-width:600px; margin:auto}
+  input,textarea{width:100%; padding:8px; margin:6px 0; box-sizing:border-box}
+  button{padding:10px 14px; margin-top:8px; width:100%}
+</style>
+</head>
+<body>
+<h2>Registro Rápido</h2>
+<label>Data</label><input id="date" type="date"/>
+<label>Peso (kg)</label><input id="weight" type="number" step="0.1"/>
+<label>Calorias</label><input id="cal" type="number"/>
+<label>Proteína (g)</label><input id="prot" type="number"/>
+<label>Carboidrato (g)</label><input id="carb" type="number"/>
+<label>Gordura (g)</label><input id="fat" type="number"/>
+<label>Notas</label><textarea id="notes"></textarea>
+<button id="send">Enviar para planilha</button>
+<p id="status"></p>
+
+<script>
+const WEB_APP_URL = "COLE_AQUI_A_URL_DO_SEU_WEBAPP";
+document.getElementById('send').addEventListener('click', async ()=>{
+  const payload = {
+    date: document.getElementById('date').value || new Date().toISOString().slice(0,10),
+    weight: Number(document.getElementById('weight').value) || "",
+    calories: Number(document.getElementById('cal').value) || "",
+    protein: Number(document.getElementById('prot').value) || "",
+    carbs: Number(document.getElementById('carb').value) || "",
+    fat: Number(document.getElementById('fat').value) || "",
+    notes: document.getElementById('notes').value || ""
+  };
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.ok) {
+      document.getElementById('status').innerText = "Registrado! Linha: " + json.row;
+      // limpar campos
+      document.getElementById('cal').value = ""; document.getElementById('prot').value="";
+      document.getElementById('carb').value=""; document.getElementById('fat').value="";
+    } else {
+      document.getElementById('status').innerText = "Erro: " + (json.error || JSON.stringify(json));
+    }
+  } catch (err) {
+    document.getElementById('status').innerText = "Falha: " + err;
+  }
+});
+</script>
+</body>
+</html>
